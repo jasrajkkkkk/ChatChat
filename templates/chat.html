@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            text-align: center;
+        }
+
+        h3 {
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+            background: red;
+            padding: 6px 12px;
+            border-radius: 5px;
+        }
+
+        .chat-box {
+            width: 400px;
+            margin: 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 80%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        #messages {
+            list-style: none;
+            padding: 0;
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        #messages li {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+<h3>Welcome {{username}}</h3>
+<a href="/logout">Logout</a>
+
+<div class="chat-box">
+
+    <input id="other_user" placeholder="Chat with user">
+    <button onclick="joinChat()">Start Chat</button>
+
+    <ul id="messages"></ul>
+
+    <input id="msg" placeholder="Type message...">
+    <button onclick="sendMsg()">Send</button>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+
+<script>
+var socket = io();
+var otherUser = "";
+
+function joinChat() {
+    otherUser = document.getElementById("other_user").value;
+    document.getElementById("messages").innerHTML = "";
+    socket.emit("join_private", {other_user: otherUser});
+}
+
+function sendMsg() {
+    let msg = document.getElementById("msg").value;
+    socket.emit("private_message", {
+        other_user: otherUser,
+        message: msg
+    });
+    document.getElementById("msg").value = "";
+}
+
+socket.on("message", function(msg) {
+    let li = document.createElement("li");
+    li.innerText = msg;
+    document.getElementById("messages").appendChild(li);
+});
+</script>
+
+</body>
+</html>
